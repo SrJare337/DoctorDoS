@@ -29,6 +29,7 @@ print(Fore.GREEN + Style.BRIGHT + """
 V1.0""")
 
 print(Fore.BLUE + Style.BRIGHT + "V1.0")
+print(Fore.BLUE + Style.BRIGHT + "Srjare337")
 
 parser = argparse.ArgumentParser(description="Simulador de Ataque DoS para fins educacionais")
 parser.add_argument("target_ip", help="IP do alvo")
