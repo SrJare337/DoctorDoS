@@ -26,7 +26,7 @@ print(Fore.GREEN + Style.BRIGHT + """
  \___ \  
  ____) | 
 |_____/  
-""")
+V1.0""")
 
 print(Fore.BLUE + Style.BRIGHT + "V1.0")
 
