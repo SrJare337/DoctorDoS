@@ -25,8 +25,9 @@ print(Fore.GREEN + Style.BRIGHT + """
 | (___   
  \___ \  
  ____) | 
-|_____/  
-V1.1""")
+|_____/ 
+
+Criador:SrJare337""")
 
 print(Fore.BLUE + Style.BRIGHT + "V1.1")
 print(Fore.BLUE + Style.BRIGHT + "Srjare337")
